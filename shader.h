@@ -7,6 +7,8 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <string>
+#include "glm/glm.hpp"
 
 class shader {
 public:
@@ -15,6 +17,12 @@ public:
     virtual ~shader();
 
     void use();
+
+    void setInt(const std::string &name, int value) const;
+    void setBool(const std::string &name, bool value) const;
+    void setFloat(const std::string &name, float value) const;
+    void setMatrixf(const std::string &name, glm::mat4) const;
+    void add_uniform(std::string variable, std::string dataType);
 
 private:
     unsigned int ID;

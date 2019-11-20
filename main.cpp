@@ -7,8 +7,11 @@
 #include <cstdlib>
 #include <iostream>
 #include <zconf.h>
+#include <gtc/matrix_transform.hpp>
 #include "shader.h"
 #include "VAOobject.h"
+#include "stb_image.h"
+#include "vertices_data.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
@@ -17,32 +20,6 @@ void processInput(GLFWwindow *window);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
-
-float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.0f, 0.5f, 0.0f
-};
-float vertices1[] = {
-        // first triangle
-        0.5f, 0.5f, 0.0f,  // top right
-        0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, 0.5f, 0.0f,  // top left
-        // second triangle
-        0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f, 0.5f, 0.0f   // top left
-};
-float vertices2[] = {
-        0.5f, 0.5f, 0.0f,  // top right
-        0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f, 0.5f, 0.0f   // top left
-};
-unsigned int indices[] = {  // note that we start from 0!
-        0, 1, 3,   // first triangle
-        1, 2, 3    // second triangle
-};
 
 int main(int argc, char *argv[]) {
 
@@ -72,29 +49,64 @@ int main(int argc, char *argv[]) {
 
     char path[150] = {0};
     char *p = getcwd(path, 150);
-    std::cout<<p<<std::endl;
+    std::cout << p << std::endl;
 
     shader shader1("../vert", "../frag");
-    unsigned int VAO;
-    VAOobject object1(vertices, sizeof(vertices));
-    VAOobject object2(vertices1, sizeof(vertices1));
-    VAOobject object3(vertices2, sizeof(vertices2), indices, sizeof(indices));
+
+    VAOobject object3(cube);
+//    VAOobject objectCube(cube);
+//    VAOobject object1(vertices);
+    object3.add_texture("/home/cxh/CLionProjects/hellogl/container.jpg");
+    object3.add_textureA("/home/cxh/CLionProjects/hellogl/awesomeface.png");
+//  every time when you set uniform ,you have to use share first.
+    shader1.use();
+    shader1.setInt("texture1", 0);
+    shader1.setInt("texture2", 1);
 
     while (!glfwWindowShouldClose(window)) {
 
         processInput(window);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+        glm::mat4 view = glm::mat4(1.0f);
+        glm::mat4 projection = glm::mat4(1.0f);
+//        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        projection = glm::perspective(glm::radians(60.0f),float(SCR_WIDTH / SCR_HEIGHT), 0.1f, 100.0f);
+//        model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+//        model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
         shader1.use();
-        object1.bindVAO();
-//        object2.bindVAO();
+//        shader1.setMatrixf("view", view);
+        shader1.setMatrixf("projection", projection);
+//        shader1.setMatrixf("model", model);
+        object3.bind_texture();
 //        object3.bindVAO();
+        for(unsigned int i = 1; i < 11; i++)
+        {
+            float speed = 1;
+            if(i%3 == 0 || i ==1){
+                speed = (float)glfwGetTime();
+            }
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i-1]);
+            float angle = 20.0f * i;
+            model = glm::rotate(model, speed * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
+            shader1.setMatrixf("model", model);
+            object3.bindVAO();
+        }
+        float radius = 10.0f;
+        float camX = sin(glfwGetTime()) * radius;
+        float camZ = cos(glfwGetTime()) * radius;
+        view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+        shader1.setMatrixf("view", view);
+        object3.bindVAO();
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-
+    object3.deleteVAO();
     glfwTerminate();
     return EXIT_SUCCESS;
 }
