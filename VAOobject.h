@@ -21,7 +21,7 @@ struct VertData{
 class VAOobject {
 public:
 
-    explicit VAOobject(VertData);
+    explicit VAOobject(VertData, int attr=2);
 
     void bindVAO();
 

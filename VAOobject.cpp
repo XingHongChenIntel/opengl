@@ -9,7 +9,7 @@
 std::vector<long long> unit_texture = {GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE2,
                                        GL_TEXTURE3, GL_TEXTURE4, GL_TEXTURE5};
 
-VAOobject::VAOobject(VertData data) : VAO(0), VBO(0), EBO(0), vertNumber(data.VertNumber) {
+VAOobject::VAOobject(VertData data, int attr) : VAO(0), VBO(0), EBO(0), vertNumber(data.VertNumber) {
     isIndices = false;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -29,7 +29,7 @@ VAOobject::VAOobject(VertData data) : VAO(0), VBO(0), EBO(0), vertNumber(data.Ve
         glEnableVertexAttribArray(0);
     }
     if (data.AttrNumber == 2) {
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, length * sizeof(float), (void *) (3 * sizeof(float)));
+        glVertexAttribPointer(1, attr, GL_FLOAT, GL_FALSE, length * sizeof(float), (void *) (3 * sizeof(float)));
         glEnableVertexAttribArray(1);
     }
     if (data.AttrNumber == 3) {
@@ -39,27 +39,6 @@ VAOobject::VAOobject(VertData data) : VAO(0), VBO(0), EBO(0), vertNumber(data.Ve
         glEnableVertexAttribArray(2);
     }
 }
-
-//VAOobject::VAOobject(float *vertices, unsigned int
-//size, unsigned int *indices, unsigned int size2) {
-//    isIndices = true;
-//    glGenVertexArrays(1, &VAO);
-//    glBindVertexArray(VAO);
-//    glGenBuffers(1, &VBO);
-//    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
-//
-//    glGenBuffers(1, &EBO);
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size2, indices, GL_STATIC_DRAW);
-//
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
-//    glEnableVertexAttribArray(0);
-//    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (3 * sizeof(float)));
-//    glEnableVertexAttribArray(1);
-//    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
-//    glEnableVertexAttribArray(2);
-//}
 
 void VAOobject::bindVAO() {
     glBindVertexArray(VAO);
