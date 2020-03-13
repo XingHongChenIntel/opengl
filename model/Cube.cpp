@@ -1,15 +1,10 @@
 //
-// Created by cxh on 19-11-14.
+// Created by cxh on 20-3-13.
 //
 
-#include "VAOobject.h"
-#include <iostream>
-#include "utils/stb_image.h"
+#include "Cube.h"
 
-std::vector<long long> unit_texture = {GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE2,
-                                       GL_TEXTURE3, GL_TEXTURE4, GL_TEXTURE5};
-
-VAOobject::VAOobject(VertData data, int attr) : VAO(0), VBO(0), EBO(0), vertNumber(data.VertNumber) {
+Cube::Cube(VertData data) : VAO(0), VBO(0), EBO(0), vertNumber(data.VertNumber) {
     isIndices = false;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -40,7 +35,15 @@ VAOobject::VAOobject(VertData data, int attr) : VAO(0), VBO(0), EBO(0), vertNumb
     }
 }
 
-void VAOobject::bindVAO() {
+void Shape::deleteVAO() {
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    if (isIndices) {
+        glDeleteBuffers(1, &EBO);
+    }
+}
+
+void Shape::paint() {
     glBindVertexArray(VAO);
     if (!isIndices) {
         glDrawArrays(GL_TRIANGLES, 0, vertNumber);
@@ -49,40 +52,7 @@ void VAOobject::bindVAO() {
     }
 //    glBindVertexArray(0);
 }
-
-void VAOobject::deleteVAO() {
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    if (isIndices) {
-        glDeleteBuffers(1, &EBO);
-    }
-}
-
-void VAOobject::add_texture(const char *path) {
-    unsigned int texture;
-
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-// 为当前绑定的纹理对象设置环绕、过滤方式
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-// 加载并生成纹理
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
-    textures.push_back(texture);
-}
-
-void VAOobject::add_textureA(const char *path) {
+void Shape::add_textureA(const char *path) {
     unsigned int texture;
     glGenTextures(1, &texture);
     std::cout << texture << std::endl;
@@ -103,11 +73,4 @@ void VAOobject::add_textureA(const char *path) {
     }
     stbi_image_free(data);
     textures.push_back(texture);
-}
-
-void VAOobject::bind_texture() {
-    for (int i = 0; i < textures.size(); i++) {
-        glActiveTexture(unit_texture[i]);
-        glBindTexture(GL_TEXTURE_2D, textures[i]);
-    }
 }

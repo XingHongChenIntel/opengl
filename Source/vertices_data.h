@@ -5,7 +5,7 @@
 #ifndef HELLOGL_VERTICES_DATA_H
 #define HELLOGL_VERTICES_DATA_H
 
-#include "VAOobject.h"
+#include "../VAOobject.h"
 
 float verticescube[] = {
         -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,

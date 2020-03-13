@@ -10,8 +10,8 @@
 #include <gtc/matrix_transform.hpp>
 #include "shader.h"
 #include "VAOobject.h"
-#include "stb_image.h"
-#include "vertices_data.h"
+#include "utils/stb_image.h"
+#include "Source/vertices_data.h"
 #include "camera.h"
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
